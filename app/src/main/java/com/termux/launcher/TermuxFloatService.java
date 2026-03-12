@@ -34,12 +34,14 @@ public class TermuxFloatService extends Service {
 
     private boolean mVisibleWindow = true;
 
+    // Indica si la actividad del launcher está activa para no mostrar la ventana flotante
     private boolean mLauncherActivityActive = false;
 
     private static final String LOG_TAG = "TermuxFloatService";
 
     private final IBinder mBinder = new LocalBinder();
 
+    // Binder para permitir que la actividad se conecte al servicio
     public class LocalBinder extends Binder {
         TermuxFloatService getService() {
             return TermuxFloatService.this;
@@ -184,6 +186,10 @@ public class TermuxFloatService extends Service {
 
 
 
+    /**
+     * Define si la actividad del launcher está activa.
+     * Si se activa, cerramos la ventana flotante para evitar duplicidad.
+     */
     public void setLauncherActivityActive(boolean active) {
         this.mLauncherActivityActive = active;
         if (active && mFloatingWindow != null) {
@@ -194,6 +200,7 @@ public class TermuxFloatService extends Service {
 
     @SuppressLint("InflateParams")
     private boolean initializeFloatView() {
+        // Si el launcher está activo, no inicializamos la ventana flotante del WindowManager
         if (mLauncherActivityActive) return true;
         boolean floatWindowWasNull = false;
         if (mFloatingWindow == null) {
@@ -271,8 +278,12 @@ public class TermuxFloatService extends Service {
             return null;
         }
 
+        mSession = newTermuxSession;
+
         // Emulator won't be set at this point so colors won't be set by TermuxFloatSessionClient.checkForFontAndColors()
-        mFloatingWindow.reloadViewStyling();
+        if (mFloatingWindow != null) {
+            mFloatingWindow.reloadViewStyling();
+        }
 
         return newTermuxSession;
     }

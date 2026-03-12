@@ -64,6 +64,7 @@ public class TermuxFloatView extends LinearLayout {
      */
     private TermuxFloatAppSharedProperties mProperties;
 
+    // Indica si la vista está siendo usada como launcher (pantalla completa, no flotante)
     private boolean mIsLauncherMode = false;
 
     private boolean withFocus = true;
@@ -185,6 +186,10 @@ public class TermuxFloatView extends LinearLayout {
             mTermuxFloatSessionClient.onDetachedFromWindow();
     }
 
+    /**
+     * Configura el modo launcher.
+     * Desactiva la transparencia y oculta los controles de la ventana.
+     */
     public void setIsLauncherMode(boolean isLauncherMode) {
         this.mIsLauncherMode = isLauncherMode;
         if (mIsLauncherMode) {
@@ -197,6 +202,7 @@ public class TermuxFloatView extends LinearLayout {
 
     @SuppressLint("RtlHardcoded")
     public void launchFloatingWindow() {
+        // No lanzamos como ventana flotante si estamos en modo launcher
         if (mIsLauncherMode) return;
         int widthAndHeight = android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
         layoutParams.flags = computeLayoutFlags(true);

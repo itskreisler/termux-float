@@ -11,7 +11,7 @@ import android.os.IBinder;
 import com.termux.shared.shell.command.ExecutionCommand;
 
 /**
- * Activity which can act as a launcher and hosts the {@link TermuxFloatView}.
+ * Actividad que puede actuar como launcher y aloja la vista {@link TermuxFloatView}.
  */
 public class TermuxFloatActivity extends Activity {
 
@@ -19,12 +19,14 @@ public class TermuxFloatActivity extends Activity {
     private TermuxFloatService mService;
     private boolean mIsBound = false;
 
+    // Conexión al servicio para gestionar la sesión de terminal
     private final ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
             TermuxFloatService.LocalBinder binder = (TermuxFloatService.LocalBinder) service;
             mService = binder.getService();
             mIsBound = true;
+            // Indicamos al servicio que la actividad del launcher está activa para evitar ventanas flotantes redundantes
             mService.setLauncherActivityActive(true);
             initializeTerminal();
         }
@@ -41,24 +43,30 @@ public class TermuxFloatActivity extends Activity {
         setContentView(R.layout.activity_main);
         mTermuxFloatView = findViewById(R.id.window_layout);
 
-        // Disable floating window behavior when in Activity
+        // Deshabilitamos el comportamiento de ventana flotante cuando estamos en modo Actividad/Launcher
         mTermuxFloatView.setIsLauncherMode(true);
 
+        // Iniciamos y nos vinculamos al servicio
         Intent intent = new Intent(this, TermuxFloatService.class);
         startService(intent);
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
     }
 
+    /**
+     * Inicializa la terminal y vincula la sesión actual.
+     */
     private void initializeTerminal() {
         if (mService == null || mTermuxFloatView == null) return;
 
         mTermuxFloatView.initFloatView(mService);
 
+        // Creamos una nueva sesión si no existe una
         if (mService.getTermuxSession() == null) {
             mService.createTermuxSession(
                 new ExecutionCommand(0, null, null, null, mTermuxFloatView.getProperties().getDefaultWorkingDirectory(), ExecutionCommand.Runner.TERMINAL_SESSION.getName(), false), null);
         }
 
+        // Vinculamos la sesión de la terminal a la vista
         if (mService.getCurrentSession() != null) {
             mTermuxFloatView.getTerminalView().attachSession(mService.getCurrentSession());
         }
@@ -89,6 +97,6 @@ public class TermuxFloatActivity extends Activity {
 
     @Override
     public void onBackPressed() {
-        // Do nothing to prevent exiting the launcher
+        // No hacemos nada para evitar que el usuario salga del launcher con el botón atrás
     }
 }

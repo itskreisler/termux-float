@@ -22,20 +22,22 @@ task clean(type: Delete) {
     delete rootProject.buildDir
 }
 
+// Tarea para verificar que las variables de entorno necesarias estén configuradas
 task verifyBuildEnvironment {
     doLast {
         def androidHome = System.getenv("ANDROID_HOME")
         def javaHome = System.getenv("JAVA_HOME")
 
         if (androidHome == null) {
-            throw new GradleException("ANDROID_HOME environment variable is not set")
+            throw new GradleException("La variable de entorno ANDROID_HOME no está configurada")
         }
         if (javaHome == null) {
-            throw new GradleException("JAVA_HOME environment variable is not set")
+            throw new GradleException("La variable de entorno JAVA_HOME no está configurada")
         }
+        // Verificamos que el directorio bin de Java exista
         def javaBin = new File(javaHome, "bin")
         if (!javaBin.exists()) {
-            throw new GradleException("JAVA_HOME/bin directory does not exist at $javaBin")
+            throw new GradleException("El directorio JAVA_HOME/bin no existe en $javaBin")
         }
 
         println "ANDROID_HOME: $androidHome"
