@@ -11,23 +11,23 @@ import com.termux.terminal.KeyHandler;
 import com.termux.terminal.TerminalEmulator;
 import com.termux.terminal.TerminalSession;
 
-public class TermuxFloatViewClient extends TermuxTerminalViewClientBase {
+public class TermuxLauncherViewClient extends TermuxTerminalViewClientBase {
 
-    private final TermuxFloatView mView;
-    private final TermuxFloatSessionClient mTermuxFloatSessionClient;
+    private final TermuxLauncherView mView;
+    private final TermuxLauncherSessionClient mTermuxLauncherSessionClient;
 
     /**
      * Keeping track of the special keys acting as Ctrl and Fn for the soft keyboard and other hardware keys.
      */
     boolean mVirtualControlKeyDown, mVirtualFnKeyDown;
 
-    public TermuxFloatViewClient(TermuxFloatView view, TermuxFloatSessionClient termuxFloatSessionClient) {
+    public TermuxLauncherViewClient(TermuxLauncherView view, TermuxLauncherSessionClient termuxLauncherSessionClient) {
         mView = view;
-        mTermuxFloatSessionClient = termuxFloatSessionClient;
+        mTermuxLauncherSessionClient = termuxLauncherSessionClient;
     }
 
     /**
-     * Should be called when TermuxFloatView.initFloatView() is called
+     * Should be called when TermuxLauncherView.initFloatView() is called
      */
     public void initFloatView() {
         if (mView.getPreferences() != null) {

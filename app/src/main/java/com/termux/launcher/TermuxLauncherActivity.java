@@ -1,10 +1,13 @@
 package com.termux.launcher;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.view.ViewTreeObserver;
@@ -12,24 +15,37 @@ import android.view.ViewTreeObserver;
 import com.termux.shared.shell.command.ExecutionCommand;
 
 /**
- * Actividad que puede actuar como launcher y aloja la vista {@link TermuxFloatView}.
+ * Actividad que puede actuar como launcher y aloja la vista {@link TermuxLauncherView}.
  */
-public class TermuxFloatActivity extends Activity {
+public class TermuxLauncherActivity extends Activity {
 
-    private TermuxFloatView mTermuxFloatView;
-    private TermuxFloatService mService;
+    private TermuxLauncherView mTermuxLauncherView;
+    private TermuxLauncherService mService;
     private boolean mIsBound = false;
 
+    private final BroadcastReceiver mExitReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (!TermuxLauncherService.ACTION_EXIT_APP.equals(intent.getAction())) return;
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                finishAndRemoveTask();
+            } else {
+                finish();
+            }
+        }
+    };
+
     private void attachTerminalSessionWhenReady() {
-        if (mService == null || mTermuxFloatView == null || mTermuxFloatView.getTerminalView() == null) return;
+        if (mService == null || mTermuxLauncherView == null || mTermuxLauncherView.getTerminalView() == null) return;
         if (mService.getCurrentSession() == null) return;
 
-        mTermuxFloatView.getTerminalView().post(() -> {
-            if (mTermuxFloatView == null || mTermuxFloatView.getTerminalView() == null || mService == null) return;
+        mTermuxLauncherView.getTerminalView().post(() -> {
+            if (mTermuxLauncherView == null || mTermuxLauncherView.getTerminalView() == null || mService == null) return;
             if (mService.getCurrentSession() == null) return;
 
-            mTermuxFloatView.getTerminalView().attachSession(mService.getCurrentSession());
-            mTermuxFloatView.getTerminalView().requestFocus();
+            mTermuxLauncherView.getTerminalView().attachSession(mService.getCurrentSession());
+            mTermuxLauncherView.getTerminalView().requestFocus();
         });
     }
 
@@ -37,7 +53,7 @@ public class TermuxFloatActivity extends Activity {
     private final ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
-            TermuxFloatService.LocalBinder binder = (TermuxFloatService.LocalBinder) service;
+            TermuxLauncherService.LocalBinder binder = (TermuxLauncherService.LocalBinder) service;
             mService = binder.getService();
             mIsBound = true;
             initializeTerminal();
@@ -53,20 +69,21 @@ public class TermuxFloatActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mTermuxFloatView = findViewById(R.id.window_layout);
+        mTermuxLauncherView = findViewById(R.id.window_layout);
+        registerReceiver(mExitReceiver, new IntentFilter(TermuxLauncherService.ACTION_EXIT_APP));
 
         // Iniciamos y nos vinculamos al servicio
-        Intent intent = new Intent(this, TermuxFloatService.class);
+        Intent intent = new Intent(this, TermuxLauncherService.class);
         startService(intent);
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
 
         // Refrescar el terminal cada vez que el layout cambia (ej: teclado abre/cierra)
-        mTermuxFloatView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+        mTermuxLauncherView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                if (mTermuxFloatView != null && mTermuxFloatView.getTerminalView() != null) {
+                if (mTermuxLauncherView != null && mTermuxLauncherView.getTerminalView() != null) {
 
-                    mTermuxFloatView.getTerminalView().postInvalidate();
+                    mTermuxLauncherView.getTerminalView().postInvalidate();
                 }
             }
         });
@@ -76,21 +93,21 @@ public class TermuxFloatActivity extends Activity {
      * Inicializa la terminal y vincula la sesión actual.
      */
     private void initializeTerminal() {
-        if (mService == null || mTermuxFloatView == null) return;
+        if (mService == null || mTermuxLauncherView == null) return;
 
-        mTermuxFloatView.initFloatView(mService);
-        if (mTermuxFloatView.getTerminalView() == null) return;
+        mTermuxLauncherView.initFloatView(mService);
+        if (mTermuxLauncherView.getTerminalView() == null) return;
 
         // Vincula la vista al servicio para usar el cliente de sesión correcto
-        mService.setTermuxFloatView(mTermuxFloatView);
+        mService.setLauncherView(mTermuxLauncherView);
 
         // Desactivar la capa de hardware para forzar redibujado correcto en tiempo real
-        mTermuxFloatView.getTerminalView().setLayerType(android.view.View.LAYER_TYPE_SOFTWARE, null);
+        mTermuxLauncherView.getTerminalView().setLayerType(android.view.View.LAYER_TYPE_SOFTWARE, null);
 
         // Creamos una nueva sesión si no existe una
         if (mService.getTermuxSession() == null) {
-            String defaultWorkingDirectory = mTermuxFloatView.getProperties() != null
-                ? mTermuxFloatView.getProperties().getDefaultWorkingDirectory()
+            String defaultWorkingDirectory = mTermuxLauncherView.getProperties() != null
+                ? mTermuxLauncherView.getProperties().getDefaultWorkingDirectory()
                 : null;
             mService.createTermuxSession(
                 new ExecutionCommand(0, null, null, null, defaultWorkingDirectory, ExecutionCommand.Runner.TERMINAL_SESSION.getName(), false), null);
@@ -102,15 +119,16 @@ public class TermuxFloatActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        TermuxFloatApplication.setLogConfig(this, false);
-        if (mTermuxFloatView != null && mTermuxFloatView.getTerminalView() != null) {
-            mTermuxFloatView.getTerminalView().requestFocus();
+        TermuxLauncherApplication.setLogConfig(this, false);
+        if (mTermuxLauncherView != null && mTermuxLauncherView.getTerminalView() != null) {
+            mTermuxLauncherView.getTerminalView().requestFocus();
         }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        unregisterReceiver(mExitReceiver);
         if (mIsBound) {
             unbindService(mConnection);
             mIsBound = false;

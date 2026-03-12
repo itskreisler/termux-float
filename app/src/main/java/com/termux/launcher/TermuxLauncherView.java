@@ -9,45 +9,45 @@ import android.widget.LinearLayout;
 import com.termux.shared.logger.Logger;
 import com.termux.shared.view.KeyboardUtils;
 import com.termux.view.TerminalView;
-import com.termux.launcher.settings.properties.TermuxFloatAppSharedProperties;
-import com.termux.launcher.settings.preferences.TermuxFloatAppSharedPreferences;
+import com.termux.launcher.settings.properties.TermuxLauncherAppSharedProperties;
+import com.termux.launcher.settings.preferences.TermuxLauncherAppSharedPreferences;
 
 /**
  * Vista principal del launcher que aloja la terminal.
  */
-public class TermuxFloatView extends LinearLayout {
+public class TermuxLauncherView extends LinearLayout {
 
     private TerminalView mTerminalView;
 
-    TermuxFloatViewClient mTermuxFloatViewClient;
-    TermuxFloatSessionClient mTermuxFloatSessionClient;
+    TermuxLauncherViewClient mTermuxLauncherViewClient;
+    TermuxLauncherSessionClient mTermuxLauncherSessionClient;
 
-    private TermuxFloatAppSharedPreferences mPreferences;
-    private TermuxFloatAppSharedProperties mProperties;
+    private TermuxLauncherAppSharedPreferences mPreferences;
+    private TermuxLauncherAppSharedProperties mProperties;
 
     /** Detector de gestos: doble toque muestra el teclado. */
     private GestureDetector mGestureDetector;
 
-    private static final String LOG_TAG = "TermuxFloatView";
+    private static final String LOG_TAG = "TermuxLauncherView";
 
-    public TermuxFloatView(Context context, AttributeSet attrs) {
+    public TermuxLauncherView(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
     /**
      * Debe llamarse cuando el servicio está listo.
      */
-    public void initFloatView(TermuxFloatService service) {
+    public void initFloatView(TermuxLauncherService service) {
         Logger.logDebug(LOG_TAG, "initFloatView");
 
-        mProperties = new TermuxFloatAppSharedProperties(getContext());
-        mPreferences = TermuxFloatAppSharedPreferences.build(getContext(), true);
+        mProperties = new TermuxLauncherAppSharedProperties(getContext());
+        mPreferences = TermuxLauncherAppSharedPreferences.build(getContext(), true);
         if (mPreferences == null) {
             Logger.logError(LOG_TAG, "mPreferences nulo — preferencias no disponibles, usando defaults");
         }
 
         // Siempre inicializamos el cliente de sesión (necesario aunque no haya preferencias)
-        mTermuxFloatSessionClient = new TermuxFloatSessionClient(service, this);
+        mTermuxLauncherSessionClient = new TermuxLauncherSessionClient(service, this);
 
         // Siempre buscamos la vista del terminal
         mTerminalView = findViewById(R.id.terminal_view);
@@ -56,9 +56,9 @@ public class TermuxFloatView extends LinearLayout {
             return;
         }
 
-        mTermuxFloatViewClient = new TermuxFloatViewClient(this, mTermuxFloatSessionClient);
-        mTerminalView.setTerminalViewClient(mTermuxFloatViewClient);
-        mTermuxFloatViewClient.initFloatView();
+        mTermuxLauncherViewClient = new TermuxLauncherViewClient(this, mTermuxLauncherSessionClient);
+        mTerminalView.setTerminalViewClient(mTermuxLauncherViewClient);
+        mTermuxLauncherViewClient.initFloatView();
 
         // Doble toque para mostrar el teclado táctil
         mGestureDetector = new GestureDetector(getContext(), new GestureDetector.SimpleOnGestureListener() {
@@ -73,15 +73,15 @@ public class TermuxFloatView extends LinearLayout {
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        if (mTermuxFloatSessionClient != null)
-            mTermuxFloatSessionClient.onAttachedToWindow();
+        if (mTermuxLauncherSessionClient != null)
+            mTermuxLauncherSessionClient.onAttachedToWindow();
     }
 
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        if (mTermuxFloatSessionClient != null)
-            mTermuxFloatSessionClient.onDetachedFromWindow();
+        if (mTermuxLauncherSessionClient != null)
+            mTermuxLauncherSessionClient.onDetachedFromWindow();
     }
 
     @Override
@@ -108,24 +108,24 @@ public class TermuxFloatView extends LinearLayout {
         return mTerminalView;
     }
 
-    public TermuxFloatViewClient getTermuxFloatViewClient() {
-        return mTermuxFloatViewClient;
+    public TermuxLauncherViewClient getTermuxLauncherViewClient() {
+        return mTermuxLauncherViewClient;
     }
 
-    public TermuxFloatSessionClient getTermuxFloatSessionClient() {
-        return mTermuxFloatSessionClient;
+    public TermuxLauncherSessionClient getTermuxLauncherSessionClient() {
+        return mTermuxLauncherSessionClient;
     }
 
-    public TermuxFloatAppSharedPreferences getPreferences() {
+    public TermuxLauncherAppSharedPreferences getPreferences() {
         return mPreferences;
     }
 
-    public TermuxFloatAppSharedProperties getProperties() {
+    public TermuxLauncherAppSharedProperties getProperties() {
         return mProperties;
     }
 
     public void reloadViewStyling() {
-        if (mTermuxFloatSessionClient != null)
-            mTermuxFloatSessionClient.onReload();
+        if (mTermuxLauncherSessionClient != null)
+            mTermuxLauncherSessionClient.onReload();
     }
 }

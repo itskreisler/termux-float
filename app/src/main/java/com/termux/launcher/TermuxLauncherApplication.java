@@ -8,9 +8,9 @@ import com.termux.shared.logger.Logger;
 import com.termux.shared.termux.TermuxConstants;
 import com.termux.shared.termux.crash.TermuxCrashUtils;
 
-public class TermuxFloatApplication extends Application {
+public class TermuxLauncherApplication extends Application {
 
-    public static final String LOG_TAG = "TermuxFloatApplication";
+    public static final String LOG_TAG = "TermuxLauncherApplication";
 
     public void onCreate() {
         super.onCreate();

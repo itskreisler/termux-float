@@ -22,24 +22,24 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Properties;
 
-public class TermuxFloatSessionClient extends TermuxTerminalSessionClientBase {
+public class TermuxLauncherSessionClient extends TermuxTerminalSessionClientBase {
 
-    private final TermuxFloatService mService;
-    private final TermuxFloatView mView;
+    private final TermuxLauncherService mService;
+    private final TermuxLauncherView mView;
 
     private SoundPool mBellSoundPool;
 
     private int mBellSoundId;
 
-    private static final String LOG_TAG = "TermuxFloatSessionClient";
+    private static final String LOG_TAG = "TermuxLauncherSessionClient";
 
-    public TermuxFloatSessionClient(TermuxFloatService service, TermuxFloatView view) {
+    public TermuxLauncherSessionClient(TermuxLauncherService service, TermuxLauncherView view) {
         mService = service;
         mView = view;
     }
 
     /**
-     * Should be called when TermuxFloatView.onAttachedToWindow() is called
+     * Should be called when TermuxLauncherView.onAttachedToWindow() is called
      */
     public void onAttachedToWindow() {
         // Just initialize the mBellSoundPool and load the sound, otherwise bell might not run
@@ -49,7 +49,7 @@ public class TermuxFloatSessionClient extends TermuxTerminalSessionClientBase {
     }
 
     /**
-     * Should be called when TermuxFloatView.onDetachedFromWindow() is called
+        * Should be called when TermuxLauncherView.onDetachedFromWindow() is called
      */
     public void onDetachedFromWindow() {
         // Release mBellSoundPool resources, specially to prevent exceptions like the following to be thrown
@@ -60,7 +60,7 @@ public class TermuxFloatSessionClient extends TermuxTerminalSessionClientBase {
     }
 
     /**
-     * Should be called when TermuxFloatView.onReload() is called
+        * Should be called when TermuxLauncherView.onReload() is called
      */
     public void onReload() {
         checkForFontAndColors();

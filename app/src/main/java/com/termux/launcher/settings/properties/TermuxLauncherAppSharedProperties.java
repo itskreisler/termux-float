@@ -11,9 +11,9 @@ import com.termux.shared.termux.settings.properties.TermuxPropertyConstants;
  * Propiedades locales mínimas para el launcher.
  * Evita cargar configuración desde otros paquetes de Termux.
  */
-public class TermuxFloatAppSharedProperties {
+public class TermuxLauncherAppSharedProperties {
 
-    public TermuxFloatAppSharedProperties(@NonNull Context context) {
+    public TermuxLauncherAppSharedProperties(@NonNull Context context) {
     }
 
     @Nullable

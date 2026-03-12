@@ -10,7 +10,7 @@ import androidx.annotation.Nullable;
  * Preferencias locales mínimas para el launcher.
  * Evita depender de paquetes externos como com.termux.window.
  */
-public class TermuxFloatAppSharedPreferences {
+public class TermuxLauncherAppSharedPreferences {
 
     private static final String PREFS_NAME = "termux_launcher_prefs";
     private static final String KEY_FONT_SIZE = "font_size";
@@ -22,18 +22,18 @@ public class TermuxFloatAppSharedPreferences {
 
     private final SharedPreferences mPrefs;
 
-    private TermuxFloatAppSharedPreferences(@NonNull Context context) {
+    private TermuxLauncherAppSharedPreferences(@NonNull Context context) {
         mPrefs = context.getApplicationContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
     }
 
     @Nullable
-    public static TermuxFloatAppSharedPreferences build(@NonNull Context context) {
-        return new TermuxFloatAppSharedPreferences(context);
+    public static TermuxLauncherAppSharedPreferences build(@NonNull Context context) {
+        return new TermuxLauncherAppSharedPreferences(context);
     }
 
     @Nullable
-    public static TermuxFloatAppSharedPreferences build(@NonNull Context context, boolean ignoreErrors) {
-        return new TermuxFloatAppSharedPreferences(context);
+    public static TermuxLauncherAppSharedPreferences build(@NonNull Context context, boolean ignoreErrors) {
+        return new TermuxLauncherAppSharedPreferences(context);
     }
 
     public int getFontSize() {

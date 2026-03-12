@@ -21,20 +21,22 @@ import com.termux.shared.termux.shell.command.environment.TermuxShellEnvironment
 import com.termux.shared.termux.shell.command.runner.terminal.TermuxSession;
 import com.termux.terminal.TerminalSession;
 
-public class TermuxFloatService extends Service {
+public class TermuxLauncherService extends Service {
+
+    public static final String ACTION_EXIT_APP = "com.termux.launcher.action.EXIT_APP";
 
     /** Vista de terminal activa (vinculada desde la actividad). */
-    private TermuxFloatView mTermuxFloatView;
+    private TermuxLauncherView mLauncherView;
 
     private TermuxSession mSession;
 
-    private static final String LOG_TAG = "TermuxFloatService";
+    private static final String LOG_TAG = "TermuxLauncherService";
 
     private final IBinder mBinder = new LocalBinder();
 
     public class LocalBinder extends Binder {
-        TermuxFloatService getService() {
-            return TermuxFloatService.this;
+        TermuxLauncherService getService() {
+            return TermuxLauncherService.this;
         }
     }
 
@@ -46,7 +48,7 @@ public class TermuxFloatService extends Service {
     @Override
     public void onCreate() {
         runStartForeground();
-        TermuxFloatApplication.setLogConfig(this, false);
+        TermuxLauncherApplication.setLogConfig(this, false);
         Logger.logVerbose(LOG_TAG, "onCreate");
     }
 
@@ -73,13 +75,15 @@ public class TermuxFloatService extends Service {
     }
 
     /** Asocia la vista de terminal con el servicio para recibir callbacks. */
-    public void setTermuxFloatView(TermuxFloatView view) {
-        this.mTermuxFloatView = view;
+    public void setLauncherView(TermuxLauncherView view) {
+        this.mLauncherView = view;
     }
 
     /** Solicita detener el servicio. */
     public void requestStopService() {
         Logger.logDebug(LOG_TAG, "requestStopService");
+        Intent exitAppIntent = new Intent(ACTION_EXIT_APP).setPackage(getPackageName());
+        sendBroadcast(exitAppIntent);
         runStopForeground();
         stopSelf();
     }
@@ -110,7 +114,7 @@ public class TermuxFloatService extends Service {
     private Notification buildNotification() {
         String notificationText = getString(R.string.notification_message_running);
 
-        Intent exitIntent = new Intent(this, TermuxFloatService.class)
+        Intent exitIntent = new Intent(this, TermuxLauncherService.class)
                 .setAction(TERMUX_FLOAT_SERVICE.ACTION_STOP_SERVICE);
         PendingIntent exitPendingIntent = PendingIntent.getService(this, 0, exitIntent,
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0);
@@ -155,14 +159,14 @@ public class TermuxFloatService extends Service {
         }
 
         executionCommand.shellName = sessionName;
-        executionCommand.terminalTranscriptRows = (mTermuxFloatView != null && mTermuxFloatView.getProperties() != null)
-                ? mTermuxFloatView.getProperties().getTerminalTranscriptRows()
+        executionCommand.terminalTranscriptRows = (mLauncherView != null && mLauncherView.getProperties() != null)
+            ? mLauncherView.getProperties().getTerminalTranscriptRows()
                 : 2000;
 
-        TermuxFloatSessionClient sessionClient = (mTermuxFloatView != null
-            && mTermuxFloatView.getTermuxFloatSessionClient() != null)
-                ? mTermuxFloatView.getTermuxFloatSessionClient()
-                : new TermuxFloatSessionClient(this, null);
+        TermuxLauncherSessionClient sessionClient = (mLauncherView != null
+            && mLauncherView.getTermuxLauncherSessionClient() != null)
+            ? mLauncherView.getTermuxLauncherSessionClient()
+            : new TermuxLauncherSessionClient(this, null);
 
         TermuxSession newSession = TermuxSession.execute(this, executionCommand,
                 sessionClient, null, new TermuxShellEnvironment(),
