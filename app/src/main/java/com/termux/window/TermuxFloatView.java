@@ -64,6 +64,8 @@ public class TermuxFloatView extends LinearLayout {
      */
     private TermuxFloatAppSharedProperties mProperties;
 
+    private boolean mIsLauncherMode = false;
+
     private boolean withFocus = true;
     int initialX;
     int initialY;
@@ -141,12 +143,18 @@ public class TermuxFloatView extends LinearLayout {
         mTerminalView.setTerminalViewClient(mTermuxFloatViewClient);
         mTermuxFloatViewClient.initFloatView();
 
-        mFloatingBubbleManager = new FloatingBubbleManager(this);
+        if (!mIsLauncherMode) {
+            mFloatingBubbleManager = new FloatingBubbleManager(this);
+        }
         initWindowControls();
     }
 
     private void initWindowControls() {
         mWindowControls = findViewById(R.id.window_controls);
+        if (mIsLauncherMode) {
+            mWindowControls.setVisibility(View.GONE);
+            return;
+        }
         mWindowControls.setOnClickListener(v -> changeFocus(true));
 
         Button minimizeButton = findViewById(R.id.minimize_button);
@@ -177,8 +185,19 @@ public class TermuxFloatView extends LinearLayout {
             mTermuxFloatSessionClient.onDetachedFromWindow();
     }
 
+    public void setIsLauncherMode(boolean isLauncherMode) {
+        this.mIsLauncherMode = isLauncherMode;
+        if (mIsLauncherMode) {
+            setAlpha(1.0f);
+            if (mWindowControls != null) {
+                mWindowControls.setVisibility(View.GONE);
+            }
+        }
+    }
+
     @SuppressLint("RtlHardcoded")
     public void launchFloatingWindow() {
+        if (mIsLauncherMode) return;
         int widthAndHeight = android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
         layoutParams.flags = computeLayoutFlags(true);
         layoutParams.width = widthAndHeight;
@@ -210,6 +229,7 @@ public class TermuxFloatView extends LinearLayout {
      */
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
+        if (mIsLauncherMode) return false;
         if (isInLongPressState) return true;
 
         getLocationOnScreen(location);
@@ -275,6 +295,7 @@ public class TermuxFloatView extends LinearLayout {
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        if (mIsLauncherMode) return super.onTouchEvent(event);
         if (isInLongPressState) {
             mScaleDetector.onTouchEvent(event);
             if (mScaleDetector.isInProgress()) return true;
@@ -301,6 +322,7 @@ public class TermuxFloatView extends LinearLayout {
      * Visually indicate focus and show the soft input as needed.
      */
     void changeFocus(boolean newFocus) {
+        if (mIsLauncherMode) return;
         if (newFocus && mFloatingBubbleManager.isMinimized()) {
             mFloatingBubbleManager.displayAsFloatingWindow();
         }
@@ -316,11 +338,14 @@ public class TermuxFloatView extends LinearLayout {
     }
 
     public void closeFloatingWindow() {
+        if (mIsLauncherMode) return;
         if (getWindowToken() != null)
             mWindowManager.removeView(this);
 
-        mFloatingBubbleManager.cleanup();
-        mFloatingBubbleManager = null;
+        if (mFloatingBubbleManager != null) {
+            mFloatingBubbleManager.cleanup();
+            mFloatingBubbleManager = null;
+        }
     }
 
     private void exit() {

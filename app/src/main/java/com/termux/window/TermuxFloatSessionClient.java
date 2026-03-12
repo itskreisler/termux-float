@@ -70,7 +70,7 @@ public class TermuxFloatSessionClient extends TermuxTerminalSessionClientBase {
 
     @Override
     public void onTextChanged(TerminalSession changedSession) {
-        if (!mView.isVisible()) return;
+        if (mView == null || !mView.isVisible()) return;
 
         mView.getTerminalView().onScreenUpdated();
     }
@@ -88,7 +88,7 @@ public class TermuxFloatSessionClient extends TermuxTerminalSessionClientBase {
 
     @Override
     public void onPasteTextFromClipboard(TerminalSession session) {
-        if (!mView.isVisible()) return;
+        if (mView == null || !mView.isVisible()) return;
 
         ClipboardManager clipboard = (ClipboardManager) mService.getSystemService(Context.CLIPBOARD_SERVICE);
         ClipData clipData = clipboard.getPrimaryClip();
@@ -100,7 +100,7 @@ public class TermuxFloatSessionClient extends TermuxTerminalSessionClientBase {
 
     @Override
     public void onBell(TerminalSession session) {
-        if (!mView.isVisible()) return;
+        if (mView == null || !mView.isVisible()) return;
 
         int bellBehaviour = mView.getProperties().getBellBehaviour();
         if (bellBehaviour == TermuxPropertyConstants.IVALUE_BELL_BEHAVIOUR_VIBRATE) {
@@ -153,6 +153,7 @@ public class TermuxFloatSessionClient extends TermuxTerminalSessionClientBase {
 
 
     public void checkForFontAndColors() {
+        if (mView == null) return;
         try {
             File colorsFile = TermuxConstants.TERMUX_COLOR_PROPERTIES_FILE;
             File fontFile = TermuxConstants.TERMUX_FONT_FILE;
@@ -180,7 +181,7 @@ public class TermuxFloatSessionClient extends TermuxTerminalSessionClientBase {
     }
 
     public void updateBackgroundColor() {
-        //if (!mView.isVisible()) return;
+        if (mView == null) return;
 
         TerminalSession session = mService.getCurrentSession();
         if (session != null && session.getEmulator() != null) {

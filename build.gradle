@@ -21,3 +21,33 @@ allprojects {
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
+
+task verifyBuildEnvironment {
+    doLast {
+        def androidHome = System.getenv("ANDROID_HOME")
+        def javaHome = System.getenv("JAVA_HOME")
+
+        if (androidHome == null) {
+            throw new GradleException("ANDROID_HOME environment variable is not set")
+        }
+        if (javaHome == null) {
+            throw new GradleException("JAVA_HOME environment variable is not set")
+        }
+        def javaBin = new File(javaHome, "bin")
+        if (!javaBin.exists()) {
+            throw new GradleException("JAVA_HOME/bin directory does not exist at $javaBin")
+        }
+
+        println "ANDROID_HOME: $androidHome"
+        println "JAVA_HOME: $javaHome"
+    }
+}
+
+// Make preBuild depend on verification
+subprojects {
+    afterEvaluate { project ->
+        if (project.tasks.findByName('preBuild')) {
+            project.tasks.preBuild.dependsOn rootProject.verifyBuildEnvironment
+        }
+    }
+}

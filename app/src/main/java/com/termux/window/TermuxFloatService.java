@@ -8,6 +8,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
 
@@ -33,11 +34,21 @@ public class TermuxFloatService extends Service {
 
     private boolean mVisibleWindow = true;
 
+    private boolean mLauncherActivityActive = false;
+
     private static final String LOG_TAG = "TermuxFloatService";
+
+    private final IBinder mBinder = new LocalBinder();
+
+    public class LocalBinder extends Binder {
+        TermuxFloatService getService() {
+            return TermuxFloatService.this;
+        }
+    }
 
     @Override
     public IBinder onBind(Intent intent) {
-        return null;
+        return mBinder;
     }
 
     @Override
@@ -54,8 +65,10 @@ public class TermuxFloatService extends Service {
         // Run again in case service is already started and onCreate() is not called
         runStartForeground();
 
-        if (mFloatingWindow == null && !initializeFloatView())
-            return Service.START_NOT_STICKY;
+        if (!mLauncherActivityActive) {
+            if (mFloatingWindow == null && !initializeFloatView())
+                return Service.START_NOT_STICKY;
+        }
 
         String action = null;
         if (intent != null) {
@@ -171,8 +184,17 @@ public class TermuxFloatService extends Service {
 
 
 
+    public void setLauncherActivityActive(boolean active) {
+        this.mLauncherActivityActive = active;
+        if (active && mFloatingWindow != null) {
+            mFloatingWindow.closeFloatingWindow();
+            mFloatingWindow = null;
+        }
+    }
+
     @SuppressLint("InflateParams")
     private boolean initializeFloatView() {
+        if (mLauncherActivityActive) return true;
         boolean floatWindowWasNull = false;
         if (mFloatingWindow == null) {
             mFloatingWindow = (TermuxFloatView) ((LayoutInflater)
@@ -182,10 +204,7 @@ public class TermuxFloatService extends Service {
 
         mFloatingWindow.initFloatView(this);
 
-        mSession = createTermuxSession(
-                new ExecutionCommand(0, null, null, null, mFloatingWindow.getProperties().getDefaultWorkingDirectory(), ExecutionCommand.Runner.TERMINAL_SESSION.getName(), false), null);
-        if (mSession == null)
-            return false;
+        ensureSessionExists();
         mFloatingWindow.getTerminalView().attachSession(mSession.getTerminalSession());
 
         try {
@@ -207,11 +226,21 @@ public class TermuxFloatService extends Service {
 
     private void setVisible(boolean newVisibility) {
         mVisibleWindow = newVisibility;
-        mFloatingWindow.setVisibility(newVisibility ? View.VISIBLE : View.GONE);
+        if (mFloatingWindow != null) {
+            mFloatingWindow.setVisibility(newVisibility ? View.VISIBLE : View.GONE);
+        }
         ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).notify(TermuxConstants.TERMUX_FLOAT_APP_NOTIFICATION_ID, buildNotification());
     }
 
-
+    public void ensureSessionExists() {
+        if (mSession == null) {
+            String workingDirectory = null;
+            int terminalTranscriptRows = 2000;
+            // Try to get defaults from a temporary view if needed, or just use defaults
+            mSession = createTermuxSession(
+                new ExecutionCommand(0, null, null, null, workingDirectory, ExecutionCommand.Runner.TERMINAL_SESSION.getName(), false), null);
+        }
+    }
 
     /** Create a {@link TermuxSession}. */
     @Nullable
@@ -229,9 +258,13 @@ public class TermuxFloatService extends Service {
             Logger.logVerboseExtended(LOG_TAG, executionCommand.toString());
 
         executionCommand.shellName = sessionName;
-        executionCommand.terminalTranscriptRows = mFloatingWindow.getProperties().getTerminalTranscriptRows();
+        // If we don't have a floating window, use a default value for transcript rows
+        executionCommand.terminalTranscriptRows = (mFloatingWindow != null) ?
+                mFloatingWindow.getProperties().getTerminalTranscriptRows() : 2000;
+
         TermuxSession newTermuxSession = TermuxSession.execute(this, executionCommand,
-                mFloatingWindow.getTermuxFloatSessionClient(), null, new TermuxShellEnvironment(),
+                (mFloatingWindow != null) ? mFloatingWindow.getTermuxFloatSessionClient() : new TermuxFloatSessionClient(this, null),
+                null, new TermuxShellEnvironment(),
                 null, executionCommand.isPluginExecutionCommand);
         if (newTermuxSession == null) {
             Logger.logError(LOG_TAG, "Failed to execute new TermuxSession command for:\n" + executionCommand.getCommandIdAndLabelLogString());
