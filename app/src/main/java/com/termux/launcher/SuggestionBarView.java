@@ -1638,6 +1638,7 @@ public final class SuggestionBarView extends GridLayout {
         LinearLayout shell = new LinearLayout(getContext());
         shell.setOrientation(LinearLayout.VERTICAL);
         shell.setPadding(dp(3), dp(3), dp(3), dp(3));
+        shell.setMinimumWidth(dp(POPUP_MIN_WIDTH_DP));
 
         LinearLayout header = new LinearLayout(getContext());
         header.setOrientation(LinearLayout.HORIZONTAL);
@@ -1649,7 +1650,11 @@ public final class SuggestionBarView extends GridLayout {
         title.setTextColor(TEXT_COLOR);
         title.setTextSize(12f);
         title.setTypeface(Typeface.DEFAULT_BOLD);
-        title.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        LinearLayout.LayoutParams titleParams = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        titleParams.setMargins(0, 0, dp(8), 0);
+        title.setLayoutParams(titleParams);
+        title.setSingleLine(true);
+        title.setEllipsize(TextUtils.TruncateAt.END);
         title.setClickable(true);
         title.setOnClickListener(v -> {
             dismissFolderPopup();
