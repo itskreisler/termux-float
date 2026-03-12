@@ -1,4 +1,4 @@
-package com.termux.window;
+package com.termux.launcher;
 
 import android.app.Application;
 import android.content.Context;

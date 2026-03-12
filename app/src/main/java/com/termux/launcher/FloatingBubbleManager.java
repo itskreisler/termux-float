@@ -1,4 +1,4 @@
-package com.termux.window;
+package com.termux.launcher;
 
 import android.graphics.Outline;
 import android.graphics.drawable.Drawable;

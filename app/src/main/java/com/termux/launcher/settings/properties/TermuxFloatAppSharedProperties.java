@@ -1,4 +1,4 @@
-package com.termux.window.settings.properties;
+package com.termux.launcher.settings.properties;
 
 import android.content.Context;
 

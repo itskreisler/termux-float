@@ -1,4 +1,4 @@
-package com.termux.window;
+package com.termux.launcher;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -25,7 +25,7 @@ import com.termux.terminal.TerminalSession;
 import com.termux.terminal.TerminalSessionClient;
 import com.termux.view.TerminalView;
 import com.termux.view.TerminalViewClient;
-import com.termux.window.settings.properties.TermuxFloatAppSharedProperties;
+import com.termux.launcher.settings.properties.TermuxFloatAppSharedProperties;
 
 public class TermuxFloatView extends LinearLayout {
 

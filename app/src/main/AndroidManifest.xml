@@ -10,7 +10,7 @@
     <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
-        android:name=".TermuxFloatApplication"
+        android:name="com.termux.launcher.TermuxFloatApplication"
         android:allowBackup="true"
         android:extractNativeLibs="true"
         android:icon="@drawable/ic_launcher"
@@ -19,7 +19,7 @@
         tools:targetApi="m">
         <activity
             android:theme="@style/AppTheme"
-            android:name=".TermuxFloatActivity"
+            android:name="com.termux.launcher.TermuxFloatActivity"
             android:label="@string/app_name"
             android:launchMode="singleTask"
             android:stateNotNeeded="true">
@@ -34,9 +34,9 @@
 
         <activity
             android:theme="@android:style/Theme.Material"
-            android:name=".TermuxFloatPermissionActivity" />
+            android:name="com.termux.launcher.TermuxFloatPermissionActivity" />
 
-        <service android:name=".TermuxFloatService" android:exported="false"/>
+        <service android:name="com.termux.launcher.TermuxFloatService" android:exported="false"/>
     </application>
 
 </manifest>
