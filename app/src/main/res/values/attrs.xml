@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="termuxActivityDrawerBackground" format="reference" />
+    <attr name="termuxActivityDrawerImageTint" format="reference" />
+    <declare-styleable name="RealtimeBlurView">
+        <attr name="realtimeBlurRadius" format="dimension" />
+        <attr name="realtimeDownsampleFactor" format="float" />
+        <attr name="realtimeOverlayColor" format="color" />
+        <attr name="realtimeIsCircle" format="boolean" />
+        <attr name="downsampleFactorOptimization" format="boolean" />
+    </declare-styleable>
+</resources>

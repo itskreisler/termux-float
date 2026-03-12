@@ -1,20 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <!DOCTYPE resources [
-    <!ENTITY TERMUX_PACKAGE_NAME "com.termux">
-    <!ENTITY TERMUX_APP_NAME "Termux">
-    <!ENTITY TERMUX_FLOAT_APP_NAME "Termux:Float">
+<!ENTITY TERMUX_PACKAGE_NAME "com.termux">
+<!ENTITY TERMUX_APP_NAME "Termux">
+<!ENTITY TERMUX_FLOAT_APP_NAME "Termux:Launcher">
     ]>
-
 <resources>
     <string name="app_name">&TERMUX_FLOAT_APP_NAME;</string>
-	<string name="initial_instruction_toast">Long press on window to move or resize\n\nDouble tap and drag finger up or down to change font size</string>
-	<string name="after_long_press">Drag to position and pinch to resize</string>
-
-    <string name="draw_overlay_permission_explanation">This app requires permission to draw overlays.</string>
-    <string name="grant_permission">Grant permission</string>
-
-    <string name="notification_action_exit">Exit</string>
-    <string name="notification_message_visible">Touch to hide window.</string>
-    <string name="notification_message_hidden">Touch to show window.</string>
+    <string name="notification_action_exit">Salir</string>
+    <string name="notification_message_running">Terminal en ejecución.</string>
+    <string name="termux_app_launcher_empty_pinned_hint">Mantén pulsado para fijar apps</string>
 </resources>

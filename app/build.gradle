@@ -1,25 +1,27 @@
 apply plugin: 'com.android.application'
 
+def appVersionName = System.getenv("TERMUX_FLOAT_APP__BUILD__APP_VERSION_NAME") ?: ""
+def apkVersionTag = System.getenv("TERMUX_FLOAT_APP__BUILD__APK_VERSION_TAG") ?: ""
+def defaultVersionName = "0.17.0"
+def effectiveVersionName = appVersionName ?: defaultVersionName
+
+validateVersionName(effectiveVersionName)
+
 android {
-    namespace "com.termux.window"
+    namespace "com.termux.launcher"
 
     compileSdk project.properties.compileSdkVersion.toInteger()
-    def appVersionName = System.getenv("TERMUX_FLOAT_APP__BUILD__APP_VERSION_NAME") ?: ""
-    def apkVersionTag = System.getenv("TERMUX_FLOAT_APP__BUILD__APK_VERSION_TAG") ?: ""
 
     defaultConfig {
-        applicationId "com.termux.window"
+        applicationId "com.termux.launcher"
         minSdk project.properties.minSdkVersion.toInteger()
         targetSdk project.properties.targetSdkVersion.toInteger()
         versionCode 1001
-        versionName "0.17.0"
-
-        if (appVersionName) versionName = appVersionName
-        validateVersionName(versionName)
+        versionName effectiveVersionName
 
         manifestPlaceholders.TERMUX_PACKAGE_NAME = "com.termux"
         manifestPlaceholders.TERMUX_APP_NAME = "Termux"
-        manifestPlaceholders.TERMUX_FLOAT_APP_NAME = "Termux:Float"
+        manifestPlaceholders.TERMUX_FLOAT_APP_NAME = "Termux:Launcher"
     }
 
     signingConfigs {
@@ -33,9 +35,10 @@ android {
 
     buildTypes {
         release {
+            signingConfig signingConfigs.debug
             minifyEnabled true
             shrinkResources false // Reproducible builds
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
 
         debug {
@@ -52,25 +55,34 @@ android {
         targetCompatibility JavaVersion.VERSION_11
     }
 
-    applicationVariants.all { variant ->
-        variant.outputs.all { output ->
-            outputFileName = new File("termux-float-app_" +
-                    (apkVersionTag ? apkVersionTag : "v" + versionName + "+" + variant.buildType.name) + ".apk")
-        }
-    }
-
-    packagingOptions {
+    packaging {
         // Remove terminal-shared JNI libs added via termux-shared dependency
         exclude "lib/*/liblocal-socket.so"
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    }
+}
+
+androidComponents {
+    onVariants(selector().all()) { variant ->
+        variant.outputs.each { output ->
+            output.outputFileName.set("termux-launcher-app_" +
+                    (apkVersionTag ? apkVersionTag : "v" + effectiveVersionName + "+" + variant.buildType) + ".apk")
+        }
     }
 }
 
 dependencies {
-    coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:1.1.5"
+    coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:2.1.5"
 
     testImplementation "junit:junit:4.13.2"
 
     implementation "androidx.annotation:annotation:1.9.1"
+    implementation "androidx.appcompat:appcompat:1.7.0"
+    implementation "androidx.recyclerview:recyclerview:1.3.2"
+    implementation "com.google.android.material:material:1.12.0"
+    implementation "me.xdrop:fuzzywuzzy:1.4.0"
 
     implementation "com.termux.termux-app:termux-shared:8aca6dbbf4"
     implementation "com.termux.termux-app:terminal-view:8aca6dbbf4"
