@@ -59,7 +59,9 @@ public class TermuxFloatActivity extends Activity {
                 new ExecutionCommand(0, null, null, null, mTermuxFloatView.getProperties().getDefaultWorkingDirectory(), ExecutionCommand.Runner.TERMINAL_SESSION.getName(), false), null);
         }
 
-        mTermuxFloatView.getTerminalView().attachSession(mService.getCurrentSession());
+        if (mService.getCurrentSession() != null) {
+            mTermuxFloatView.getTerminalView().attachSession(mService.getCurrentSession());
+        }
         mTermuxFloatView.reloadViewStyling();
         mTermuxFloatView.showTouchKeyboard();
     }
