@@ -15,7 +15,6 @@ import androidx.annotation.Nullable;
 import com.termux.shared.logger.Logger;
 import com.termux.shared.notification.NotificationUtils;
 import com.termux.shared.shell.command.ExecutionCommand;
-import com.termux.shared.termux.TermuxConstants;
 import com.termux.shared.termux.TermuxConstants.TERMUX_FLOAT_APP.TERMUX_FLOAT_SERVICE;
 import com.termux.shared.termux.shell.command.environment.TermuxShellEnvironment;
 import com.termux.shared.termux.shell.command.runner.terminal.TermuxSession;
@@ -31,6 +30,11 @@ public class TermuxLauncherService extends Service {
     private TermuxSession mSession;
 
     private static final String LOG_TAG = "TermuxLauncherService";
+
+    private static final String FLOAT_APP_NAME                  = "Termux:Launcher";
+    private static final int    FLOAT_APP_NOTIFICATION_ID        = 1340;
+    private static final String FLOAT_APP_NOTIFICATION_CHANNEL_ID   = "termux_launcher_notification_channel";
+    private static final String FLOAT_APP_NOTIFICATION_CHANNEL_NAME = "Termux:Launcher App";
 
     private final IBinder mBinder = new LocalBinder();
 
@@ -96,7 +100,7 @@ public class TermuxLauncherService extends Service {
 
     private void runStartForeground() {
         setupNotificationChannel();
-        startForeground(TermuxConstants.TERMUX_FLOAT_APP_NOTIFICATION_ID, buildNotification());
+        startForeground(FLOAT_APP_NOTIFICATION_ID, buildNotification());
     }
 
     private void runStopForeground() {
@@ -106,8 +110,8 @@ public class TermuxLauncherService extends Service {
     private void setupNotificationChannel() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return;
         NotificationUtils.setupNotificationChannel(this,
-                TermuxConstants.TERMUX_FLOAT_APP_NOTIFICATION_CHANNEL_ID,
-                TermuxConstants.TERMUX_FLOAT_APP_NOTIFICATION_CHANNEL_NAME,
+                FLOAT_APP_NOTIFICATION_CHANNEL_ID,
+                FLOAT_APP_NOTIFICATION_CHANNEL_NAME,
                 NotificationManager.IMPORTANCE_LOW);
     }
 
@@ -120,9 +124,9 @@ public class TermuxLauncherService extends Service {
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0);
 
         Notification.Builder builder = NotificationUtils.geNotificationBuilder(this,
-                TermuxConstants.TERMUX_FLOAT_APP_NOTIFICATION_CHANNEL_ID,
+                FLOAT_APP_NOTIFICATION_CHANNEL_ID,
                 Notification.PRIORITY_LOW,
-                TermuxConstants.TERMUX_FLOAT_APP_NAME,
+                FLOAT_APP_NAME,
                 notificationText, null, null, null,
                 NotificationUtils.NOTIFICATION_MODE_SILENT);
         if (builder == null) return null;
