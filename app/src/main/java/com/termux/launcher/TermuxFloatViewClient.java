@@ -4,7 +4,6 @@ import android.content.Context;
 import android.media.AudioManager;
 import android.view.InputDevice;
 import android.view.KeyEvent;
-import android.view.MotionEvent;
 
 import com.termux.shared.termux.terminal.TermuxTerminalViewClientBase;
 import com.termux.shared.view.KeyboardUtils;
@@ -31,11 +30,11 @@ public class TermuxFloatViewClient extends TermuxTerminalViewClientBase {
      * Should be called when TermuxFloatView.initFloatView() is called
      */
     public void initFloatView() {
-        mView.getTerminalView().setTextSize(mView.getPreferences().getFontSize());
-
-        // Set {@link TerminalView#TERMINAL_VIEW_KEY_LOGGING_ENABLED} value
-        boolean isTerminalViewKeyLoggingEnabled = mView.getPreferences().isTerminalViewKeyLoggingEnabled(true);
-        mView.getTerminalView().setIsTerminalViewKeyLoggingEnabled(isTerminalViewKeyLoggingEnabled);
+        if (mView.getPreferences() != null) {
+            mView.getTerminalView().setTextSize(mView.getPreferences().getFontSize());
+            boolean isKeyLoggingEnabled = mView.getPreferences().isTerminalViewKeyLoggingEnabled(true);
+            mView.getTerminalView().setIsTerminalViewKeyLoggingEnabled(isKeyLoggingEnabled);
+        }
     }
 
     /**
@@ -43,8 +42,7 @@ public class TermuxFloatViewClient extends TermuxTerminalViewClientBase {
      */
     @Override
     public void onEmulatorSet() {
-        // This is being called every time float bubble is maximized
-        mTermuxFloatSessionClient.checkForFontAndColors();
+        // Evitar aplicar estilos/fuentes demasiado pronto durante el arranque.
     }
 
 
@@ -60,29 +58,18 @@ public class TermuxFloatViewClient extends TermuxTerminalViewClientBase {
     }
 
     @Override
-    public boolean onLongPress(MotionEvent event) {
-        mView.updateLongPressMode(true);
-        mView.getLocationOnScreen(mView.location);
-        mView.initialX = mView.location[0];
-        mView.initialY = mView.location[1];
-        mView.initialTouchX = event.getRawX();
-        mView.initialTouchY = event.getRawY();
-        return true;
-    }
-
-    @Override
     public boolean shouldBackButtonBeMappedToEscape() {
-        return mView.getProperties().isBackKeyTheEscapeKey();
+        return mView.getProperties() != null && mView.getProperties().isBackKeyTheEscapeKey();
     }
 
     @Override
     public boolean shouldEnforceCharBasedInput() {
-        return mView.getProperties().isEnforcingCharBasedInput();
+        return mView.getProperties() != null && mView.getProperties().isEnforcingCharBasedInput();
     }
 
     @Override
     public boolean shouldUseCtrlSpaceWorkaround() {
-        return mView.getProperties().isUsingCtrlSpaceWorkaround();
+        return mView.getProperties() != null && mView.getProperties().isUsingCtrlSpaceWorkaround();
     }
 
     @Override
@@ -94,7 +81,7 @@ public class TermuxFloatViewClient extends TermuxTerminalViewClientBase {
     public boolean onKeyDown(int keyCode, KeyEvent e, TerminalSession session) {
         if (handleVirtualKeys(keyCode, e, true)) return true;
 
-        if (!mView.getProperties().areHardwareKeyboardShortcutsDisabled() &&
+        if ((mView.getProperties() == null || !mView.getProperties().areHardwareKeyboardShortcutsDisabled()) &&
                 e.isCtrlPressed() && e.isAltPressed()) {
             // Get the unmodified code point:
             int unicodeChar = e.getUnicodeChar(0);
@@ -239,7 +226,7 @@ public class TermuxFloatViewClient extends TermuxTerminalViewClientBase {
      */
     private boolean handleVirtualKeys(int keyCode, KeyEvent event, boolean down) {
         InputDevice inputDevice = event.getDevice();
-        if (mView.getProperties().areVirtualVolumeKeysDisabled()) {
+        if (mView.getProperties() != null && mView.getProperties().areVirtualVolumeKeysDisabled()) {
             return false;
         } else if (inputDevice != null && inputDevice.getKeyboardType() == InputDevice.KEYBOARD_TYPE_ALPHABETIC) {
             // Do not steal dedicated buttons from a full external keyboard.
@@ -257,6 +244,7 @@ public class TermuxFloatViewClient extends TermuxTerminalViewClientBase {
 
 
     public void changeFontSize(boolean increase) {
+        if (mView.getPreferences() == null) return;
         mView.getPreferences().changeFontSize(increase);
         mView.getTerminalView().setTextSize(mView.getPreferences().getFontSize());
     }

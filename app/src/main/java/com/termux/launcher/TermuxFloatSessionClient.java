@@ -70,9 +70,9 @@ public class TermuxFloatSessionClient extends TermuxTerminalSessionClientBase {
 
     @Override
     public void onTextChanged(TerminalSession changedSession) {
-        if (mView == null || !mView.isVisible()) return;
-
+        if (mView == null || mView.getTerminalView() == null || !mView.isVisible()) return;
         mView.getTerminalView().onScreenUpdated();
+        mView.getTerminalView().invalidate();
     }
 
     @Override
@@ -100,7 +100,7 @@ public class TermuxFloatSessionClient extends TermuxTerminalSessionClientBase {
 
     @Override
     public void onBell(TerminalSession session) {
-        if (mView == null || !mView.isVisible()) return;
+        if (mView == null || !mView.isVisible() || mView.getProperties() == null) return;
 
         int bellBehaviour = mView.getProperties().getBellBehaviour();
         if (bellBehaviour == TermuxPropertyConstants.IVALUE_BELL_BEHAVIOUR_VIBRATE) {
@@ -122,7 +122,7 @@ public class TermuxFloatSessionClient extends TermuxTerminalSessionClientBase {
 
     @Override
     public Integer getTerminalCursorStyle() {
-        return mView.getProperties().getTerminalCursorStyle();
+        return mView != null && mView.getProperties() != null ? mView.getProperties().getTerminalCursorStyle() : null;
     }
 
 

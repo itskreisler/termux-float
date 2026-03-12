@@ -3,20 +3,54 @@ package com.termux.launcher.settings.properties;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
-import com.termux.shared.termux.TermuxConstants;
 import com.termux.shared.termux.settings.properties.TermuxPropertyConstants;
-import com.termux.shared.termux.settings.properties.TermuxSharedProperties;
 
-public class TermuxFloatAppSharedProperties extends TermuxSharedProperties {
-
-    private static final String LOG_TAG = "TermuxFloatAppSharedProperties";
+/**
+ * Propiedades locales mínimas para el launcher.
+ * Evita cargar configuración desde otros paquetes de Termux.
+ */
+public class TermuxFloatAppSharedProperties {
 
     public TermuxFloatAppSharedProperties(@NonNull Context context) {
-        super(context, TermuxConstants.TERMUX_FLOAT_APP_NAME,
-                TermuxConstants.TERMUX_FLOAT_PROPERTIES_FILE_PATHS_LIST,
-                TermuxPropertyConstants.TERMUX_APP_PROPERTIES_LIST,
-                new SharedPropertiesParserClient());
     }
 
+    @Nullable
+    public String getDefaultWorkingDirectory() {
+        return null;
+    }
+
+    public int getTerminalTranscriptRows() {
+        return 2000;
+    }
+
+    public boolean isBackKeyTheEscapeKey() {
+        return false;
+    }
+
+    public boolean isEnforcingCharBasedInput() {
+        return false;
+    }
+
+    public boolean isUsingCtrlSpaceWorkaround() {
+        return false;
+    }
+
+    public boolean areHardwareKeyboardShortcutsDisabled() {
+        return false;
+    }
+
+    public boolean areVirtualVolumeKeysDisabled() {
+        return false;
+    }
+
+    public int getBellBehaviour() {
+        return TermuxPropertyConstants.IVALUE_BELL_BEHAVIOUR_IGNORE;
+    }
+
+    @Nullable
+    public Integer getTerminalCursorStyle() {
+        return null;
+    }
 }

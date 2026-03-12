@@ -7,7 +7,6 @@ import android.util.Log;
 import com.termux.shared.logger.Logger;
 import com.termux.shared.termux.TermuxConstants;
 import com.termux.shared.termux.crash.TermuxCrashUtils;
-import com.termux.shared.termux.settings.preferences.TermuxFloatAppSharedPreferences;
 
 public class TermuxFloatApplication extends Application {
 
@@ -29,11 +28,6 @@ public class TermuxFloatApplication extends Application {
 
     public static void setLogConfig(Context context, boolean commitToFile) {
         Logger.setDefaultLogTag(TermuxConstants.TERMUX_FLOAT_APP_NAME.replaceAll("[: ]", ""));
-
-        // Load the log level from shared preferences and set it to the {@link Logger.CURRENT_LOG_LEVEL}
-        TermuxFloatAppSharedPreferences preferences = TermuxFloatAppSharedPreferences.build(context);
-        if (preferences == null) return;
-        preferences.setLogLevel(null, preferences.getLogLevel(true), commitToFile);
     }
 
 }
