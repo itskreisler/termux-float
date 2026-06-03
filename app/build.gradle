@@ -12,6 +12,12 @@ android {
 
     compileSdk project.properties.compileSdkVersion.toInteger()
 
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
+
     defaultConfig {
         applicationId "com.termux.launcher"
         minSdk project.properties.minSdkVersion.toInteger()

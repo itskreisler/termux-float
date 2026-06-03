@@ -17,8 +17,10 @@ public class RobolectricTest {
     @Test
     public void testActivityCreation() {
         try (ActivityController<TermuxLauncherActivity> controller = Robolectric.buildActivity(TermuxLauncherActivity.class)) {
-            // TermuxLauncherActivity activity = controller.setup().get();
-            // assertNotNull(activity);
+            // Use just build and create to avoid service connection issues in pure unit tests if possible,
+            // or just ensure it doesn't crash.
+            TermuxLauncherActivity activity = controller.create().get();
+            assertNotNull(activity);
         }
     }
 }

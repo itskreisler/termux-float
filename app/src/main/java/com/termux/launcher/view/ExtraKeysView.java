@@ -15,9 +15,6 @@ import com.termux.terminal.TerminalEmulator;
 import com.termux.terminal.TerminalSession;
 import com.termux.launcher.TermuxLauncherView;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * View that displays extra keys for the terminal, such as ESC, CTRL, ALT, etc.
  */
@@ -67,7 +64,7 @@ public class ExtraKeysView extends HorizontalScrollView {
 
         com.termux.launcher.TermuxLauncherViewClient client = launcherView.getTermuxLauncherViewClient();
         boolean newState = !client.readControlKey();
-        client.mVirtualControlKeyDown = newState;
+        client.setVirtualControlKeyDown(newState);
         updateButtonsHighlight();
     }
 
@@ -78,7 +75,7 @@ public class ExtraKeysView extends HorizontalScrollView {
 
         com.termux.launcher.TermuxLauncherViewClient client = launcherView.getTermuxLauncherViewClient();
         boolean newState = !client.readAltKey();
-        client.mVirtualAltKeyDown = newState;
+        client.setVirtualAltKeyDown(newState);
         updateButtonsHighlight();
     }
 

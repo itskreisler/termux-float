@@ -34,6 +34,12 @@ public class TermuxLauncherView extends LinearLayout {
         super(context, attrs);
     }
 
+    @Override
+    protected void onFinishInflate() {
+        super.onFinishInflate();
+        mTerminalView = findViewById(R.id.terminal_view);
+    }
+
     /**
      * Debe llamarse cuando el servicio está listo.
      */
