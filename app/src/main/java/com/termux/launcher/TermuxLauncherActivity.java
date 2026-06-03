@@ -16,6 +16,7 @@ import android.view.ViewTreeObserver;
 import com.termux.shared.shell.command.ExecutionCommand;
 import com.termux.launcher.launcher.data.LauncherAppDataProvider;
 import com.termux.launcher.launcher.data.LauncherConfigRepository;
+import com.termux.launcher.view.ExtraKeysView;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -32,6 +33,7 @@ public class TermuxLauncherActivity extends Activity {
     private boolean mIsBound = false;
     private SuggestionBarView mSuggestionBarView;
     private AzScrubRowView mAzScrubRowView;
+    private ExtraKeysView mExtraKeysView;
 
     private final BroadcastReceiver mExitReceiver = new BroadcastReceiver() {
         @Override
@@ -82,8 +84,10 @@ public class TermuxLauncherActivity extends Activity {
         mTermuxLauncherView = findViewById(R.id.window_layout);
         mSuggestionBarView = findViewById(R.id.suggestion_bar);
         mAzScrubRowView = findViewById(R.id.az_scrub_row);
+        mExtraKeysView = findViewById(R.id.extra_keys);
         setupSuggestionBar();
         setupAzScrubRow();
+        setupExtraKeys();
         registerReceiver(mExitReceiver, new IntentFilter(TermuxLauncherService.ACTION_EXIT_APP));
 
         // Iniciamos y nos vinculamos al servicio
@@ -162,6 +166,35 @@ public class TermuxLauncherActivity extends Activity {
             }
         });
         syncAzScrubLettersAndTint();
+    }
+
+    private void setupExtraKeys() {
+        if (mExtraKeysView == null || mTermuxLauncherView == null) return;
+        mExtraKeysView.setTerminalView(mTermuxLauncherView.getTerminalView());
+        mExtraKeysView.setSpecialKeyListener(new ExtraKeysView.SpecialKeyListener() {
+            @Override
+            public boolean readControlKey() {
+                if (mTermuxLauncherView != null && mTermuxLauncherView.getTermuxLauncherViewClient() != null) {
+                    return mTermuxLauncherView.getTermuxLauncherViewClient().readControlKey();
+                }
+                return false;
+            }
+
+            @Override
+            public boolean readAltKey() {
+                if (mTermuxLauncherView != null && mTermuxLauncherView.getTermuxLauncherViewClient() != null) {
+                    return mTermuxLauncherView.getTermuxLauncherViewClient().readAltKey();
+                }
+                return false;
+            }
+
+            @Override
+            public void onTerminalInteraction() {
+                if (mSuggestionBarView != null) {
+                    mSuggestionBarView.onTerminalInteraction();
+                }
+            }
+        });
     }
 
     private void syncAzScrubLettersAndTint() {

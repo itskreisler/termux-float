@@ -19,7 +19,7 @@ public class TermuxLauncherViewClient extends TermuxTerminalViewClientBase {
     /**
      * Keeping track of the special keys acting as Ctrl and Fn for the soft keyboard and other hardware keys.
      */
-    boolean mVirtualControlKeyDown, mVirtualFnKeyDown;
+    public boolean mVirtualControlKeyDown, mVirtualFnKeyDown, mVirtualAltKeyDown;
 
     public TermuxLauncherViewClient(TermuxLauncherView view, TermuxLauncherSessionClient termuxLauncherSessionClient) {
         mView = view;
@@ -118,7 +118,7 @@ public class TermuxLauncherViewClient extends TermuxTerminalViewClientBase {
 
     @Override
     public boolean readAltKey() {
-        return false;
+        return mVirtualAltKeyDown;
     }
 
     @Override
