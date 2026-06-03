@@ -19,6 +19,12 @@
         android:layout_width="match_parent"
         android:layout_height="32dp"
         android:gravity="center_vertical" />
+    <com.termux.launcher.view.ExtraKeysView
+        android:id="@+id/extra_keys"
+        android:layout_width="match_parent"
+        android:layout_height="32dp"
+        android:background="#DD000000"
+        android:visibility="visible" />
     <com.termux.launcher.SuggestionBarView
         android:id="@+id/suggestion_bar"
         style="?android:attr/buttonBarStyle"
