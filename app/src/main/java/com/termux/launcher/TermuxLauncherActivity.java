@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.view.KeyEvent;
 import android.view.ViewTreeObserver;
+import android.widget.Toast;
 
 import com.termux.shared.shell.command.ExecutionCommand;
 import com.termux.launcher.launcher.data.LauncherAppDataProvider;
@@ -159,6 +160,11 @@ public class TermuxLauncherActivity extends Activity {
                 if (mSuggestionBarView != null) {
                     mSuggestionBarView.clearAzPreview();
                 }
+            }
+
+            @Override
+            public void onDoubleTap() {
+                Toast.makeText(TermuxLauncherActivity.this, "Doble toque detectado en la barra A-Z", Toast.LENGTH_SHORT).show();
             }
         });
         syncAzScrubLettersAndTint();
